@@ -7,43 +7,39 @@ import { isValidId } from '../utils/isValidObjectId.js';
 import Sports from '../models/sportsModel.js';
 
 const createSubCategory = async (req, res) => {
-  const { name, category, sport } = req.body;
+  const { name, category } = req.body;
 
-  if (!name && !category && !sport) {
+  if (!name?.trim() || !category) {
     throw new AppError('Name and category are required', 400);
   }
 
-  if (!isValidId(category) && !isValidId(sport)) {
+  if (!isValidId(category)) {
     throw new AppError('Invalid category or sport ID', 400);
   }
 
   const categoryExists = await Category.findById(category);
-  const sportExists = await Sports.findById(sport);
 
-  if (!categoryExists && !sportExists) {
-    throw new AppError('Category or Sports not found', 404);
+  if (!categoryExists) {
+    throw new AppError('Category not found', 404);
   }
 
-  const subCategoryExists = await SubCategory.findOne({
-    name: name.toLowerCase(),
-    category,
-  });
+  try {
+    const subCategory = await SubCategory.create({
+      name,
+      category,
+    });
 
-  if (subCategoryExists) {
-    throw new AppError('Subcategory already exists in this category', 400);
+    res.status(201).json({
+      status: 'Success',
+      message: 'Subcategory created successfully',
+      data: subCategory,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      throw new AppError('Subcategory already exists in this category', 400);
+    }
+    throw error;
   }
-
-  const subCategory = await SubCategory.create({
-    name: name.toLowerCase(),
-    category,
-    sport,
-  });
-
-  res.status(201).json({
-    status: 'Success',
-    message: 'Subcategory created successfully',
-    data: subCategory,
-  });
 };
 
 const getAllSubCategory = async (req, res) => {
@@ -112,39 +108,38 @@ const updateSubCategory = async (req, res) => {
     throw new AppError('Invalid subcategory ID', 400);
   }
 
+  if (!name?.trim()) {
+    throw new AppError('Name is required', 400);
+  }
+
   const subCategory = await SubCategory.findById(id);
 
   if (!subCategory) {
     throw new AppError('Subcategory not found', 404);
   }
 
-  if (name) {
-    const subCategoryExists = await SubCategory.findOne({
-      name: name.toLowerCase(),
-      category: subCategory.category,
-      sport: subCategory.sport,
-    });
+  subCategory.name = name;
 
-    if (subCategoryExists && subCategoryExists._id.toString() !== id) {
+  try {
+    const updatedSubCategory = await subCategory.save();
+
+    res.status(200).json({
+      status: 'Success',
+      message: 'Subcategory updated successfully',
+      data: updatedSubCategory,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
       throw new AppError('Subcategory already exists in this category', 400);
     }
-
-    subCategory.name = name.toLowerCase();
+    throw error;
   }
-
-  const updatedSubCategory = await subCategory.save();
-
-  res.status(200).json({
-    status: 'Success',
-    message: 'Subcategory updated successfully',
-    data: updatedSubCategory,
-  });
 };
 
 const deleteSubCategory = async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isValidId(id)) {
     throw new AppError('Invalid subcategory ID', 400);
   }
 

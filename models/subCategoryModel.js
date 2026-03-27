@@ -8,11 +8,6 @@ const subCategorySchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    // sport: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Sports',
-    //   required: true,
-    // },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
