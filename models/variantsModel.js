@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { updateProductPrice } from '../utils/updateProductPrice.js';
 
 const variantsSchema = new mongoose.Schema(
   {
@@ -31,6 +32,23 @@ const variantsSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+// ✅ After SAVE (create)
+variantsSchema.post('save', async function () {
+  await updateProductPrice(this.productId);
+});
+
+variantsSchema.post('findOneAndUpdate', async function (doc) {
+  if (doc) {
+    await updateProductPrice(doc.productId);
+  }
+});
+
+variantsSchema.post('findOneAndDelete', async function (doc) {
+  if (doc) {
+    await updateProductPrice(doc.productId);
+  }
+});
 
 const Variant = mongoose.model('Variant', variantsSchema);
 

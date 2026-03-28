@@ -33,7 +33,7 @@ const createCategory = async (req, res) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      throw new AppError('Sport already exists', 400);
+      throw new AppError('Category already exists in this sport', 400);
     }
     throw error;
   }

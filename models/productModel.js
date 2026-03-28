@@ -27,14 +27,14 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // minPrice: {
-    //   type: Number,
-    //   required: true,
-    // },
-    // maxPrice: {
-    //   type: Number,
-    //   required: true,
-    // },
+    minPrice: {
+      type: Number,
+      required: true,
+    },
+    maxPrice: {
+      type: Number,
+      required: true,
+    },
     rating: Number,
     numReviews: Number,
     isFeatured: {
