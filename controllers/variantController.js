@@ -1,7 +1,6 @@
 import Variant from '../models/variantsModel.js';
 import Product from '../models/productModel.js';
 import AppError from '../errors/AppError.js';
-import mongoose from 'mongoose';
 import { isValidId } from '../utils/isValidObjectId.js';
 
 const createVariant = async (req, res) => {
@@ -12,7 +11,7 @@ const createVariant = async (req, res) => {
     throw new AppError('Name, productId and price are required', 400);
   }
 
-  if (!mongoose.Types.ObjectId.isValid(productId)) {
+  if (!isValidId(productId)) {
     throw new AppError('Invalid product ID', 400);
   }
 
@@ -63,7 +62,7 @@ const getVariants = async (req, res) => {
 const getVariantById = async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isValidId(id)) {
     throw new AppError('Invalid variant ID', 400);
   }
 
@@ -85,20 +84,18 @@ const getVariantById = async (req, res) => {
 const updateVariant = async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isValidId(id)) {
     throw new AppError('Invalid variant ID', 400);
-  }
-
-  const variant = await Variant.findById(id);
-
-  if (!variant) {
-    throw new AppError('Variant not found', 404);
   }
 
   const updatedVariant = await Variant.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
   }).populate('productId', 'name brand');
+
+  if (!updatedVariant) {
+    throw new AppError('Variant not found', 404);
+  }
 
   res.status(200).json({
     success: true,
@@ -123,6 +120,7 @@ const deleteVariant = async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Variant deleted successfully',
+    data: deletedVariant._id,
   });
 };
 
