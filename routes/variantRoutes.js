@@ -8,11 +8,18 @@ import {
   updateVariant,
 } from '../controllers/variantController.js';
 
+import { uploadMultiple } from '../middleware/upload.js';
+
 const router = express.Router();
 
 router
   .route('/:productId/variants')
-  .post(protect, admin, asyncHandler(createVariant))
+  .post(
+    protect,
+    admin,
+    uploadMultiple('images', 'variants'),
+    asyncHandler(createVariant),
+  )
   .get(asyncHandler(getVariants));
 
 router
