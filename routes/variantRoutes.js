@@ -24,7 +24,12 @@ router
 
 router
   .route('/:id')
-  .patch(protect, admin, asyncHandler(updateVariant))
+  .patch(
+    protect,
+    admin,
+    uploadMultiple('images', 'variants'),
+    asyncHandler(updateVariant),
+  )
   .delete(protect, admin, asyncHandler(deleteVariant));
 
 export default router;
