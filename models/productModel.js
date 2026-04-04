@@ -29,11 +29,9 @@ const productSchema = new mongoose.Schema(
     },
     minPrice: {
       type: Number,
-      required: true,
     },
     maxPrice: {
       type: Number,
-      required: true,
     },
     rating: Number,
     numReviews: Number,

@@ -13,7 +13,7 @@ const getStorage = (folderName) =>
     destination: function (req, file, cb) {
       const folderPath = `uploads/${folderName}`;
 
-      createFolder(folderPath); // ensure folder exists
+      createFolder(folderPath);
 
       cb(null, folderPath);
     },

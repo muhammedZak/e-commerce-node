@@ -45,13 +45,13 @@ const createVariant = async (req, res) => {
     throw new AppError('Variant with same color and size already exists', 400);
   }
 
-  let imagePaths = [];
+  const files = req.files || [];
 
-  if (req.files && req.files.length > 0) {
-    imagePaths = req.files.map((file) => file.path.replace(/\\/g, '/'));
-  } else {
-    throw new AppError('At least one image is required', 400);
+  if (files.length < 4) {
+    throw new AppError('At least 4 images are required', 400);
   }
+
+  const imagePaths = files.map((file) => file.path.replace(/\\/g, '/'));
 
   const availability =
     typeof isAvailable === 'boolean' ? isAvailable : isAvailable === 'true';
@@ -166,17 +166,35 @@ const updateVariant = async (req, res) => {
       updateData.isAvailable === true || updateData.isAvailable === 'true';
   }
 
-  if (req.files && req.files.length > 0) {
-    const newImages = req.files.map((file) => file.path.replace(/\\/g, '/'));
+  const newImages =
+    req.files?.map((file) => file.path.replace(/\\/g, '/')) || [];
 
-    existingVariant.images.forEach((imgPath) => {
-      fs.unlink(imgPath, (err) => {
-        if (err) console.error('Failed to delete old image:', err);
+  let finalImages;
+
+  if (newImages.length > 0) {
+    if (newImages.length < 4) {
+      throw new AppError('At least 4 images required', 400);
+    }
+
+    existingVariant.images.forEach((img) => {
+      fs.unlink(img, (err) => {
+        if (err) console.error('Failed to delete:', err);
       });
     });
 
-    updateData.images = newImages;
+    finalImages = newImages;
+  } else {
+    finalImages = existingVariant.images;
+
+    if (finalImages.length < 4) {
+      throw new AppError(
+        'Variant must have at least 4 images. Please upload images.',
+        400,
+      );
+    }
   }
+
+  updateData.images = finalImages;
 
   if (updateData.color || updateData.size) {
     const color = updateData.color ?? existingVariant.color;

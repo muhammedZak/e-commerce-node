@@ -20,9 +20,6 @@ const createProducts = async (req, res) => {
 
   const file = req.file;
 
-  console.log('BODY:', req.body);
-  console.log('FILE:', req.file);
-
   if (!name || !description || !sport || !subCategory || !category || !brand) {
     throw new AppError('Please provide all required fields', 400);
   }
@@ -32,8 +29,6 @@ const createProducts = async (req, res) => {
   }
 
   const thumbNailImage = `uploads/products/${file.filename}`;
-
-  console.log('first');
 
   if (
     (sport && !isValidId(sport)) ||
@@ -48,19 +43,16 @@ const createProducts = async (req, res) => {
     throw new AppError('Sport not found', 404);
   }
 
-  console.log('2');
   const categoryExists = await Category.findById(category);
   if (!categoryExists) {
     throw new AppError('Category not found', 404);
   }
-  console.log('3');
 
   const subCategoryExists = await SubCategory.findById(subCategory);
   if (!subCategoryExists) {
     throw new AppError('Subcategory not found', 404);
   }
 
-  console.log('4');
   const product = await Product.create({
     name,
     description,
@@ -72,7 +64,7 @@ const createProducts = async (req, res) => {
     isFeatured,
     isActive,
   });
-  console.log('5');
+
   res.status(201).json({
     status: 'Success',
     message: 'Product created successfully',
