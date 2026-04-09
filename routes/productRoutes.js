@@ -23,9 +23,14 @@ router
   .get(asyncHandler(getProducts));
 
 router
-  .route('/:productId')
+  .route('/:id')
   .get(asyncHandler(getProduct))
-  .patch(protect, admin, asyncHandler(updateProduct))
+  .patch(
+    protect,
+    admin,
+    uploadSingle('picture', 'products'),
+    asyncHandler(updateProduct),
+  )
   .delete(protect, admin, asyncHandler(deleteProduct));
 
 export default router;
